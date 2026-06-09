@@ -20,10 +20,10 @@ export default function NoteForm({ onClose }: NoteFormProps) {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       clearDraft();
       if (onClose) {
-  onClose();
-} else {
-  router.push("/notes/filter/all");
-}
+        onClose();
+      } else {
+        router.push("/notes/filter/all");
+      }
     },
   });
 
@@ -37,17 +37,17 @@ export default function NoteForm({ onClose }: NoteFormProps) {
       <input
         type="text"
         name="title"
-        defaultValue={draft.title}
+        value={draft.title}
         onChange={(e) => setDraft({ ...draft, title: e.target.value })}
       />
       <textarea
         name="content"
-        defaultValue={draft.content}
+        value={draft.content}
         onChange={(e) => setDraft({ ...draft, content: e.target.value })}
       />
       <select
         name="tag"
-        defaultValue={draft.tag}
+        value={draft.tag}
         onChange={(e) =>
           setDraft({ ...draft, tag: e.target.value as NoteTag })
         }
@@ -59,11 +59,19 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         <option value="Shopping">Shopping</option>
       </select>
       <button type="submit">Save</button>
-      <button type="button" onClick={() => onClose?.() ?? router.back()}>
+      <button
+        type="button"
+        onClick={() => {
+          if (onClose) {
+            onClose();
+          } else {
+            router.back();
+          }
+        }}
+      >
         Cancel
       </button>
     </form>
   );
 }
-
 
