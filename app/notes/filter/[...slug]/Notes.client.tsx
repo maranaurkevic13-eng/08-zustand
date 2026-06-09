@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNotes, FetchNotesResponse } from "@/lib/api";
 import SearchBox from "@/components/SearchBox/SearchBox";
-import Pagination from "@/components/Pagination/Pagination";
-import Modal from "@/components/Modal/Modal";
-import NoteForm from "@/components/NoteForm/NoteForm";
+import Pagination from "@/components/Pagination/Pagination";     
 import NoteList from "@/components/NoteList/NoteList";
 import { keepPreviousData } from "@tanstack/react-query";
+import Link from "next/link";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -24,8 +23,7 @@ interface NotesClientProps {
 
 export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");       
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -36,7 +34,9 @@ export default function NotesClient({ tag }: NotesClientProps) {
         ? fetchNotes(page, 10, debouncedSearch)
         : fetchNotes(page, 10, debouncedSearch, tag),
     placeholderData: keepPreviousData,
-  });       
+  });
+
+  const notes = data?.notes ?? [];
 
   return (
     <div>
@@ -45,22 +45,22 @@ export default function NotesClient({ tag }: NotesClientProps) {
       {data && data.totalPages > 1 && (
         <Pagination
           pageCount={data.totalPages}
-          currentPage={page - 1}
-          onPageChange={(selected) => setPage(selected + 1)}
+          currentPage={page}
+          onPageChange={(selected) => setPage(selected)}
         />
       )}
 
-      <button onClick={() => setIsOpen(true)}>Create note +</button>
+      <Link href="/notes/action/create">
+        <button>Create note +</button>
+      </Link>
 
       {isLoading && <p>Loading...</p>}
       {isError && <p>Error loading notes</p>}
-      {data && <NoteList notes={data.notes} />}
-
-      {isOpen && (
-        <Modal onClose={() => setIsOpen(false)}>
-          <NoteForm onClose={() => setIsOpen(false)} />
-        </Modal>
+      {notes.length > 0 ? (
+        <NoteList notes={notes} />
+      ) : (
+        <p>No notes found</p>
       )}
     </div>
   );
-}           
+}
