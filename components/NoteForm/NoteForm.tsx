@@ -4,14 +4,18 @@ import { useNoteStore } from "@/lib/store/noteStore";
 import { createNote } from "@/lib/api";
 import { NoteTag } from "@/types/note";
 
-export default function NoteForm() {
+type NoteFormProps = {
+  onClose?: () => void;
+};
+
+export default function NoteForm({ onClose }: NoteFormProps) {
   const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteStore();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await createNote(draft);
-    clearDraft();
+     clearDraft();
     router.push("/notes/filter/all");
   };
 
@@ -44,7 +48,7 @@ export default function NoteForm() {
         <option value="Personal">Personal</option>
       </select>
       <button type="submit">Save</button>
-      <button type="button" onClick={() => router.back()}>
+      <button type="button" onClick={onClose ?? (() => router.back())}>
         Cancel
       </button>
     </form>
